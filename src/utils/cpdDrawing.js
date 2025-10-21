@@ -80,7 +80,7 @@ export const createBinaryCPD = (
     .text(predicate);
 
   // Draw connectors
-  connectors.forEach((connector, index) => {
+  connectors.forEach((connector) => {
     const startY =
       connector.start === "top" ? centerY - topOffset : centerY + bottomOffset;
     const endY =
@@ -98,7 +98,12 @@ export const createBinaryCPD = (
   });
 };
 
-export const createTernaryCPD = (svgElement, width = 280, height = 160) => {
+export const createTernaryCPD = (
+  svgElement,
+  ternaryConnectors,
+  width = 280,
+  height = 160
+) => {
   const svg = d3.select(svgElement);
   svg.selectAll("*").remove();
 
@@ -137,70 +142,117 @@ export const createTernaryCPD = (svgElement, width = 280, height = 160) => {
     .attr("font-weight", "bold")
     .text("P");
 
-  // Draw ternary connectors in triangular/parallelogram patterns
-  const patterns = [
-    // Upper triangle
+  // If no connectors provided, show placeholder
+  if (!ternaryConnectors || ternaryConnectors.length !== 8) {
+    return;
+  }
+
+  // Define the 8 connector paths
+  const paths = [
+    // Upper triangle (0-1): S and P members
     {
-      path: `M${leftX},${centerY - 35} L${centerX},${centerY - 15} L${rightX},${
-        centerY - 35
-      }`,
-      color: "#059669",
-      style: "solid",
+      points: [
+        { x: leftX, y: centerY - 35 },
+        { x: centerX, y: centerY - 15 },
+        { x: rightX, y: centerY - 35 },
+      ],
+      connector: ternaryConnectors[0],
     },
-    // Descending parallelogram
     {
-      path: `M${leftX},${centerY - 15} L${centerX},${centerY + 5} L${rightX},${
-        centerY + 35
-      }`,
-      color: "#dc2626",
-      style: "dashed",
+      points: [
+        { x: leftX, y: centerY - 28 },
+        { x: centerX, y: centerY - 8 },
+        { x: rightX, y: centerY - 28 },
+      ],
+      connector: ternaryConnectors[1],
     },
-    // Ascending parallelogram
+
+    // Descending parallelogram (2-3): S member, P non-member
     {
-      path: `M${leftX},${centerY + 35} L${centerX},${centerY + 5} L${rightX},${
-        centerY - 15
-      }`,
-      color: "#7c3aed",
-      style: "solid",
+      points: [
+        { x: leftX, y: centerY - 15 },
+        { x: centerX, y: centerY + 5 },
+        { x: rightX, y: centerY + 25 },
+      ],
+      connector: ternaryConnectors[2],
     },
-    // Bottom triangle
     {
-      path: `M${leftX},${centerY + 35} L${centerX},${centerY + 15} L${rightX},${
-        centerY + 35
-      }`,
-      color: "#ea580c",
-      style: "double",
+      points: [
+        { x: leftX, y: centerY - 8 },
+        { x: centerX, y: centerY + 12 },
+        { x: rightX, y: centerY + 32 },
+      ],
+      connector: ternaryConnectors[3],
+    },
+
+    // Ascending parallelogram (4-5): S non-member, P member
+    {
+      points: [
+        { x: leftX, y: centerY + 25 },
+        { x: centerX, y: centerY + 5 },
+        { x: rightX, y: centerY - 15 },
+      ],
+      connector: ternaryConnectors[4],
+    },
+    {
+      points: [
+        { x: leftX, y: centerY + 32 },
+        { x: centerX, y: centerY + 12 },
+        { x: rightX, y: centerY - 8 },
+      ],
+      connector: ternaryConnectors[5],
+    },
+
+    // Bottom triangle (6-7): S and P non-members
+    {
+      points: [
+        { x: leftX, y: centerY + 28 },
+        { x: centerX, y: centerY + 8 },
+        { x: rightX, y: centerY + 28 },
+      ],
+      connector: ternaryConnectors[6],
+    },
+    {
+      points: [
+        { x: leftX, y: centerY + 35 },
+        { x: centerX, y: centerY + 15 },
+        { x: rightX, y: centerY + 35 },
+      ],
+      connector: ternaryConnectors[7],
     },
   ];
 
-  patterns.forEach((pattern) => {
-    if (pattern.style === "solid") {
+  // Draw each connector
+  paths.forEach(({ points, connector }) => {
+    const pathString = `M${points[0].x},${points[0].y} L${points[1].x},${points[1].y} L${points[2].x},${points[2].y}`;
+
+    if (connector.style === "solid") {
       svg
         .append("path")
-        .attr("d", pattern.path)
-        .attr("stroke", pattern.color)
+        .attr("d", pathString)
+        .attr("stroke", connector.color)
         .attr("stroke-width", 3)
         .attr("fill", "none");
-    } else if (pattern.style === "dashed") {
+    } else if (connector.style === "dashed") {
       svg
         .append("path")
-        .attr("d", pattern.path)
-        .attr("stroke", pattern.color)
+        .attr("d", pathString)
+        .attr("stroke", connector.color)
         .attr("stroke-width", 3)
         .attr("stroke-dasharray", "8,4")
         .attr("fill", "none");
-    } else if (pattern.style === "double") {
+    } else if (connector.style === "double") {
       svg
         .append("path")
-        .attr("d", pattern.path)
-        .attr("stroke", pattern.color)
+        .attr("d", pathString)
+        .attr("stroke", connector.color)
         .attr("stroke-width", 1.5)
         .attr("fill", "none")
         .attr("transform", "translate(0,-2)");
       svg
         .append("path")
-        .attr("d", pattern.path)
-        .attr("stroke", pattern.color)
+        .attr("d", pathString)
+        .attr("stroke", connector.color)
         .attr("stroke-width", 1.5)
         .attr("fill", "none")
         .attr("transform", "translate(0,2)");

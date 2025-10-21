@@ -7,10 +7,11 @@ import {
 
 const CPDDiagram = ({
   title,
-  type = "binary", // 'binary' or 'ternary'
+  type = "binary",
   subject,
   predicate,
-  proposition, // { quality, quantity } for binary diagrams
+  proposition,
+  ternaryConnectors,
   showValidation = false,
   width = 180,
   height = 120,
@@ -60,9 +61,9 @@ const CPDDiagram = ({
         connectors
       );
     } else if (type === "ternary") {
-      createTernaryCPD(svgRef.current, width, height);
+      createTernaryCPD(svgRef.current, ternaryConnectors, width, height);
     }
-  }, [type, subject, predicate, proposition, width, height]);
+  }, [type, subject, predicate, proposition, ternaryConnectors, width, height]);
 
   return (
     <div style={styles.container}>

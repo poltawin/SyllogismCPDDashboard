@@ -24,6 +24,7 @@ const App = () => {
     conclusion,
     validity,
     showHint,
+    ternaryConnectors, // NEW: Get composed ternary connectors
 
     // Setters
     setTerms,
@@ -505,6 +506,7 @@ const App = () => {
               <CPDDiagram
                 title="Result"
                 type="ternary"
+                ternaryConnectors={ternaryConnectors}
                 width={280}
                 height={160}
               />

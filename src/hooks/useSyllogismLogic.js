@@ -1,9 +1,13 @@
-import { useState, useCallback, useEffect } from "react";
+// src/hooks/useSyllogismLogic.js - Enhanced version
+
+import { useState, useCallback, useEffect, useMemo } from "react";
 import {
   getPropositionType,
   formatStatement,
+  getCPDConnectors,
 } from "../utils/propositionHelpers";
 import { validateSyllogism } from "../utils/syllogismValidation";
+import { composeTernaryCPD } from "../utils/ternaryComposition";
 
 // Helper functions for type conversions
 const getQualityQuantityFromType = (type) => {
@@ -17,7 +21,6 @@ const getQualityQuantityFromType = (type) => {
 };
 
 const parseStatementType = (statementType) => {
-  // AAA -> { major: 'A', minor: 'A', conclusion: 'A' }
   return {
     major: statementType[0] || "A",
     minor: statementType[1] || "A",
@@ -61,6 +64,17 @@ export const useSyllogismLogic = () => {
   const [showHint, setShowHint] = useState(false);
   const [isUpdatingFromType, setIsUpdatingFromType] = useState(false);
 
+  // Compute ternary CPD connectors
+  const ternaryConnectors = useMemo(() => {
+    const majorType = getPropositionType(major.quality, major.quantity);
+    const minorType = getPropositionType(minor.quality, minor.quantity);
+
+    const majorConnectors = getCPDConnectors(majorType);
+    const minorConnectors = getCPDConnectors(minorType);
+
+    return composeTernaryCPD(minorConnectors, majorConnectors, figure);
+  }, [major.quality, major.quantity, minor.quality, minor.quantity, figure]);
+
   // Update individual premises when statement type changes
   const updatePremisesFromType = useCallback((newStatementType) => {
     setIsUpdatingFromType(true);
@@ -88,13 +102,12 @@ export const useSyllogismLogic = () => {
       quantity: conclusionQualQuant.quantity,
     }));
 
-    // Small delay to allow state updates to complete
     setTimeout(() => setIsUpdatingFromType(false), 10);
   }, []);
 
   // Update statement type when individual premises change
   const updateTypeFromPremises = useCallback(() => {
-    if (isUpdatingFromType) return; // Prevent circular updates
+    if (isUpdatingFromType) return;
 
     const majorType = getPropositionType(major.quality, major.quantity);
     const minorType = getPropositionType(minor.quality, minor.quantity);
@@ -127,33 +140,23 @@ export const useSyllogismLogic = () => {
       conclusion.quantity
     );
 
-    // Following Wikipedia syllogistic conventions:
-    // Major premise: Links M with P
-    // Minor premise: Links S with M
-    // Conclusion: Always S with P
-
     let majorText = "";
     let minorText = "";
 
     // Major premise arrangement based on figure
     if (figure === "1" || figure === "3") {
-      // Figure 1 & 3: Major premise is M-P
       majorText = formatStatement(majorType, terms.M, terms.P);
     } else {
-      // Figure 2 & 4: Major premise is P-M
       majorText = formatStatement(majorType, terms.P, terms.M);
     }
 
     // Minor premise arrangement based on figure
     if (figure === "1" || figure === "2") {
-      // Figure 1 & 2: Minor premise is S-M
       minorText = formatStatement(minorType, terms.S, terms.M);
     } else {
-      // Figure 3 & 4: Minor premise is M-S
       minorText = formatStatement(minorType, terms.M, terms.S);
     }
 
-    // Conclusion is always S-P
     const conclusionText = formatStatement(conclusionType, terms.S, terms.P);
 
     setMajor((prev) => ({ ...prev, text: majorText }));
@@ -202,7 +205,6 @@ export const useSyllogismLogic = () => {
     setShowHint((prev) => !prev);
   }, []);
 
-  // Handle statement type changes from dropdown
   const handleStatementTypeChange = useCallback(
     (newType) => {
       setStatementType(newType);
@@ -234,10 +236,11 @@ export const useSyllogismLogic = () => {
     conclusion,
     validity,
     showHint,
+    ternaryConnectors, // NEW: Expose composed ternary connectors
 
     // Setters
     setTerms,
-    setStatementType: handleStatementTypeChange, // Use the enhanced version
+    setStatementType: handleStatementTypeChange,
     setFigure,
     setMajor,
     setMinor,
