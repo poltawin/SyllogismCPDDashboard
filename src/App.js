@@ -12,6 +12,8 @@ import TermsSection from "./components/TermsSection/TermsSection";
 import ValidationIndicator from "./components/shared/ValidationIndicator";
 import Button from "./components/shared/Button";
 import CPDDiagram from "./components/DiagramsSection/CPDDiagram";
+import PropositionSelector from "./components/shared/PropositionSelector";
+import { TypeSelector, FigureSelector } from "./components/shared/TypeSelector";
 
 const App = () => {
   const {
@@ -178,7 +180,7 @@ const App = () => {
     },
     statementsControls: {
       display: "grid",
-      gridTemplateColumns: "1fr 1fr",
+      gridTemplateColumns: "2fr 1fr", // Changed: Give more space to Type selector
       gap: "16px",
       marginBottom: "16px",
     },
@@ -307,27 +309,15 @@ const App = () => {
                     display: "block",
                     fontSize: "0.875rem",
                     fontWeight: "500",
-                    marginBottom: "4px",
+                    marginBottom: "8px",
                   }}
                 >
-                  Type
+                  Type (Mood)
                 </label>
-                <select
+                <TypeSelector
                   value={statementType}
-                  onChange={(e) => setStatementType(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "4px",
-                  }}
-                >
-                  {types.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setStatementType}
+                />
               </div>
 
               <div>
@@ -336,149 +326,68 @@ const App = () => {
                     display: "block",
                     fontSize: "0.875rem",
                     fontWeight: "500",
-                    marginBottom: "4px",
+                    marginBottom: "8px",
                   }}
                 >
                   Figure
                 </label>
-                <select
-                  value={figure}
-                  onChange={(e) => setFigure(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "4px",
-                  }}
-                >
-                  {figures.map((fig) => (
-                    <option key={fig.value} value={fig.value}>
-                      {fig.label}
-                    </option>
-                  ))}
-                </select>
+                <FigureSelector value={figure} onChange={setFigure} />
+              </div>
+            </div>
+          </div>
+
+          {/* Major, Minor, Conclusion */}
+          <div style={styles.statementsGrid}>
+            <div>
+              <h4 style={{ fontWeight: "500", marginBottom: "8px" }}>Major</h4>
+              <div style={styles.statementBox}>
+                <p style={styles.statementText}>{major.text}</p>
+                <PropositionSelector
+                  quality={major.quality}
+                  quantity={major.quantity}
+                  onQualityChange={(value) =>
+                    setMajor({ ...major, quality: value })
+                  }
+                  onQuantityChange={(value) =>
+                    setMajor({ ...major, quantity: value })
+                  }
+                />
               </div>
             </div>
 
-            {/* Major, Minor, Conclusion */}
-            <div style={styles.statementsGrid}>
-              <div>
-                <h4 style={{ fontWeight: "500", marginBottom: "8px" }}>
-                  Major
-                </h4>
-                <div style={styles.statementBox}>
-                  <p style={styles.statementText}>{major.text}</p>
-                  <div style={styles.selectGrid}>
-                    <select
-                      value={major.quality}
-                      onChange={(e) =>
-                        setMajor({ ...major, quality: e.target.value })
-                      }
-                      style={styles.select}
-                    >
-                      {qualities.map((q) => (
-                        <option key={q} value={q}>
-                          Qual {q}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={major.quantity}
-                      onChange={(e) =>
-                        setMajor({ ...major, quantity: e.target.value })
-                      }
-                      style={styles.select}
-                    >
-                      {quantities.map((q) => (
-                        <option key={q} value={q}>
-                          Quant {q}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+            <div>
+              <h4 style={{ fontWeight: "500", marginBottom: "8px" }}>Minor</h4>
+              <div style={styles.statementBox}>
+                <p style={styles.statementText}>{minor.text}</p>
+                <PropositionSelector
+                  quality={minor.quality}
+                  quantity={minor.quantity}
+                  onQualityChange={(value) =>
+                    setMinor({ ...minor, quality: value })
+                  }
+                  onQuantityChange={(value) =>
+                    setMinor({ ...minor, quantity: value })
+                  }
+                />
               </div>
+            </div>
 
-              <div>
-                <h4 style={{ fontWeight: "500", marginBottom: "8px" }}>
-                  Minor
-                </h4>
-                <div style={styles.statementBox}>
-                  <p style={styles.statementText}>{minor.text}</p>
-                  <div style={styles.selectGrid}>
-                    <select
-                      value={minor.quality}
-                      onChange={(e) =>
-                        setMinor({ ...minor, quality: e.target.value })
-                      }
-                      style={styles.select}
-                    >
-                      {qualities.map((q) => (
-                        <option key={q} value={q}>
-                          Qual {q}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={minor.quantity}
-                      onChange={(e) =>
-                        setMinor({ ...minor, quantity: e.target.value })
-                      }
-                      style={styles.select}
-                    >
-                      {quantities.map((q) => (
-                        <option key={q} value={q}>
-                          Quant {q}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ fontWeight: "500", marginBottom: "8px" }}>
-                  Conclusion
-                </h4>
-                <div
-                  style={{ ...styles.statementBox, ...styles.conclusionBox }}
-                >
-                  <p style={styles.statementText}>{conclusion.text}</p>
-                  <div style={styles.selectGrid}>
-                    <select
-                      value={conclusion.quality}
-                      onChange={(e) =>
-                        setConclusion({
-                          ...conclusion,
-                          quality: e.target.value,
-                        })
-                      }
-                      style={styles.select}
-                    >
-                      {qualities.map((q) => (
-                        <option key={q} value={q}>
-                          Qual {q}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={conclusion.quantity}
-                      onChange={(e) =>
-                        setConclusion({
-                          ...conclusion,
-                          quantity: e.target.value,
-                        })
-                      }
-                      style={styles.select}
-                    >
-                      {quantities.map((q) => (
-                        <option key={q} value={q}>
-                          Quant {q}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+            <div>
+              <h4 style={{ fontWeight: "500", marginBottom: "8px" }}>
+                Conclusion
+              </h4>
+              <div style={{ ...styles.statementBox, ...styles.conclusionBox }}>
+                <p style={styles.statementText}>{conclusion.text}</p>
+                <PropositionSelector
+                  quality={conclusion.quality}
+                  quantity={conclusion.quantity}
+                  onQualityChange={(value) =>
+                    setConclusion({ ...conclusion, quality: value })
+                  }
+                  onQuantityChange={(value) =>
+                    setConclusion({ ...conclusion, quantity: value })
+                  }
+                />
               </div>
             </div>
           </div>
