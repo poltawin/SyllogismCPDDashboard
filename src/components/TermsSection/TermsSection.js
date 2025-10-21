@@ -98,13 +98,13 @@ const TermsSection = ({ terms, setTerms }) => {
           />
         </div>
 
-        <div style={styles.inputGroup}>
+        {/* <div style={styles.inputGroup}>
           <label style={styles.label}>Level</label>
           <div style={styles.levelGroup}>
             <span style={{ fontSize: "0.875rem" }}>Colour</span>
             <button style={styles.button}>BW/colour</button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
